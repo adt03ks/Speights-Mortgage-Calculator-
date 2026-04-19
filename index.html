@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Craft your mortgage payment | Perry Homes</title>
+  <style>
+    :root {
+      --bg: #f5f1ee;
+      --card: #ffffff;
+      --ink: #1f1f1f;
+      --muted: #6a6a6a;
+      --line: #ddd4cf;
+      --accent: #111111;
+      --soft: #f8f6f4;
+      --gold: #b08b57;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(180deg, #f7f4f2 0%, #f0ebe7 100%);
+      color: var(--ink);
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 32px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(180,170,162,.45);
+      border-radius: 28px;
+      box-shadow: 0 18px 50px rgba(20,20,20,.08);
+      overflow: hidden;
+      backdrop-filter: blur(4px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 28px;
+      padding: 28px 32px 10px;
+      align-items: center;
+    }
+
+    .hero .headshot {
+      width: 180px;
+      height: 180px;
+      border-radius: 24px;
+      object-fit: cover;
+      box-shadow: 0 12px 25px rgba(0,0,0,.09);
+    }
+
+    .brandblock {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .logo {
+      max-width: 460px;
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 4px;
+    }
+
+    h1 {
+      margin: 0;
+      font-weight: 500;
+      font-size: clamp(2rem, 4vw, 3.3rem);
+      letter-spacing: -.03em;
+      color: #3b3b3b;
+    }
+
+    .section {
+      padding: 18px 32px 32px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 20px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #303030;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      font-size: 1.05rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #aaa19a;
+      box-shadow: 0 0 0 4px rgba(150,140,132,.12);
+    }
+
+    .checks {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      border-radius: 18px;
+      padding: 16px 18px;
+    }
+
+    .checks .lead {
+      margin: 0 0 10px;
+      font-weight: 600;
+    }
+
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin: 8px 0;
+      color: #333;
+    }
+
+    .check input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: .95rem;
+      line-height: 1.45;
+    }
+
+    .resultbox {
+      background: linear-gradient(180deg, #191919 0%, #0f0f0f 100%);
+      color: white;
+      border-radius: 22px;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+      margin-top: 8px;
+    }
+
+    .resultbox small {
+      display: block;
+      color: rgba(255,255,255,.75);
+      font-size: .95rem;
+      margin-bottom: 6px;
+    }
+
+    .payment {
+      font-size: clamp(2rem, 5vw, 3.1rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
+
+    .mini {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px 20px;
+      margin-top: 18px;
+    }
+
+    .mini div {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .mini strong {
+      display: block;
+      font-size: .85rem;
+      color: rgba(255,255,255,.74);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .mini span {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .leadbox {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff 0%, #faf7f5 100%);
+      border-radius: 22px;
+      padding: 22px;
+      margin-top: 8px;
+    }
+
+    .leadbox h3 {
+      margin: 0 0 6px;
+      font-size: 1.5rem;
+      letter-spacing: -.02em;
+    }
+
+    .leadbox p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .btnrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      display: inline-block;
+      border: none;
+      padding: 15px 20px;
+      border-radius: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .btn-dark {
+      background: #111;
+      color: #fff;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #fff;
+    }
+
+    .contact {
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 20px;
+      padding: 26px 32px 30px;
+      align-items: center;
+    }
+
+    .contact img {
+      width: 110px;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 50%;
+      box-shadow: 0 8px 20px rgba(0,0,0,.08);
+    }
+
+    .contact h2 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      letter-spacing: -.02em;
+    }
+
+    .contact p {
+      margin: 4px 0;
+      font-size: 1.1rem;
+    }
+
+    .cta {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 14px 20px;
+      background: #111;
+      color: white;
+      text-decoration: none;
+      border-radius: 14px;
+      font-weight: 600;
+    }
+
+    .foot {
+      padding: 0 32px 28px;
+      color: #666;
+      font-size: .95rem;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: .8rem;
+      background: #ece7e2;
+      border: 1px solid #ddd4cf;
+      color: #4a4a4a;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .success {
+      display: none;
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #eef7ef;
+      border: 1px solid #cfe3d2;
+      color: #2d5a34;
+      font-weight: 600;
+    }
+
+    @media (max-width: 760px) {
+      .hero, .contact, .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        justify-items: center;
+        text-align: center;
+      }
+
+      .brandblock {
+        align-items: center;
+      }
+
+      .hero .headshot {
+        width: 150px;
+        height: 150px;
+      }
+
+      .contact {
+        text-align: center;
+        justify-items: center;
+      }
+
+      .resultbox {
+        grid-template-columns: 1fr;
+      }
+
+      .mini {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="hero">
+        <!-- Replace this path with your uploaded headshot file -->
+        <img class="headshot" src="Angela Profile Picture(1).png" alt="Angela Speights headshot" />
+
+        <div class="brandblock">
+          <!-- Replace this path with your uploaded logo file -->
+          <img class="logo" src="PH_TOE_LOGO.jpg" alt="Perry Homes logo" />
+          <div>
+            <div class="badge">Riceland · Mont Belvieu</div>
+            <h1>Craft your mortgage payment</h1>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="grid">
+          <div class="field">
+            <label for="homePrice">Home Price</label>
+            <input id="homePrice" type="number" value="510000" min="0" step="1000" />
+          </div>
+
+          <div class="field">
+            <label for="loanProgram">Loan Program</label>
+            <select id="loanProgram">
+              <option value="FHA">FHA</option>
+              <option value="VA">VA</option>
+              <option value="Conventional" selected>Conventional</option>
+              <option value="USDA">USDA</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="downPayment">Down Payment Amount</label>
+            <input id="downPayment" type="number" value="102000" min="0" step="500" />
+          </div>
+
+          <div class="field">
+            <label for="interestRate">Interest Rate (%)</label>
+            <input id="interestRate" type="number" value="6" min="0" max="20" step="0.01" />
+          </div>
+
+          <div class="field">
+            <label for="termYears">Loan Term (Years)</label>
+            <select id="termYears">
+              <option value="30" selected>30 years</option>
+              <option value="20">20 years</option>
+              <option value="15">15 years</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="annualInsurance">Estimated Annual Home Insurance</label>
+            <input id="annualInsurance" type="number" value="2600" min="0" step="50" />
+          </div>
+
+          <div class="field full">
+            <label>Tax Exemptions</label>
+            <div class="checks">
+              <p class="lead">Reduce taxes by qualified exemptions:</p>
+              <label class="check"><input id="homestead" type="checkbox" /> <span>Homestead = 20% reduction</span></label>
+              <label class="check"><input id="senior65" type="checkbox" /> <span>65+ = $360,000 home value reduction</span></label>
+              <label class="check"><input id="disabledVet" type="checkbox" /> <span>Total disabled veteran = 100% tax reduction <span class="note">(VA only)</span></span></label>
+            </div>
+          </div>
+
+          <div class="field full">
+            <div class="resultbox">
+              <div>
+                <small>Estimated monthly payment</small>
+                <div class="payment" id="monthlyPayment">$0</div>
+                <div class="note" style="color: rgba(255,255,255,.78); margin-top: 8px;">
+                  Principal + interest + taxes + insurance + program mortgage fees
+                </div>
+              </div>
+              <div class="badge" style="background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12); color: rgba(255,255,255,.88);">Live estimate</div>
+            </div>
+
+            <div class="mini">
+              <div><strong>Estimated Monthly Taxes</strong><span id="monthlyTaxes">$0</span></div>
+              <div><strong>Estimated Monthly Insurance</strong><span id="monthlyInsurance">$0</span></div>
+              <div><strong>Estimated Monthly Principal & Interest</strong><span id="monthlyPI">$0</span></div>
+              <div><strong>Estimated Monthly Mortgage Fees</strong><span id="monthlyFees">$0</span></div>
+              <div><strong>Financed Loan Amount</strong><span id="loanAmount">$0</span></div>
+              <div><strong>Upfront Financed Program Fee</strong><span id="upfrontFee">$0</span></div>
+            </div>
+          </div>
+
+          <div class="field full">
+            <div class="leadbox">
+              <h3>Get your estimate sent to you</h3>
+              <p>Enter your contact details and preferred budget, then click the button below to send your estimate and next-step request to Angela Speights.</p>
+
+              <div class="grid" style="margin-top: 0;">
+                <div class="field">
+                  <label for="leadName">Your Name</label>
+                  <input id="leadName" type="text" placeholder="Enter your name" />
+                </div>
+
+                <div class="field">
+                  <label for="leadEmail">Your Email</label>
+                  <input id="leadEmail" type="email" placeholder="Enter your email" />
+                </div>
+
+                <div class="field full">
+                  <label for="leadBudget">Target Budget</label>
+                  <input id="leadBudget" type="number" placeholder="Example: 450000" step="1000" />
+                </div>
+              </div>
+
+              <div class="btnrow">
+                <button class="btn btn-dark" id="sendEstimateBtn" type="button">Send me my estimate</button>
+                <a class="btn btn-gold" href="https://nam02.safelinks.protection.outlook.com/?url=https%3A%2F%2Foutlook.office.com%2Fbookwithme%2Fuser%2F335215c5155c4c38b0de6cb2c3f71125%40PerryHomes.com%3Fanonymous%26ismsaljsauthenabled%26ep%3DbwmEmailSignature&data=05%7C02%7CAngela.Speights%40PerryHomes.com%7C3ed36dc54f2245dd6dfe08de9d73047a%7Cca39f22a84304f7fa2da0b70923ac0c4%7C0%7C0%7C639121314506077129%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=aUY%2Bq9s271%2FgLTkws72LujcFVY1F4zK9vH92zdItSmc%3D&reserved=0" target="_blank" rel="noopener noreferrer">Book a virtual or in-person appointment</a>
+              </div>
+
+              <div class="success" id="successMessage">
+                Your estimate email draft is ready to send.
+              </div>
+            </div>
+          </div>
+
+          <div class="field full note">
+            This calculator is a planning tool for Perry Homes prospects in Riceland. Loan fees can vary by credit score, occupancy, VA service status, county eligibility, lender overlays, debt-to-income, and final underwriting.
+          </div>
+        </div>
+      </div>
+
+      <div class="contact">
+        <img src="Angela Profile Picture(1).png" alt="Angela Speights headshot" />
+        <div>
+          <h2>Angela Speights</h2>
+          <p>Direct: 346-867-4865</p>
+          <p><a href="mailto:Angela.Speights@PerryHomes.com">Angela.Speights@PerryHomes.com</a></p>
+          <a class="cta" href="https://nam02.safelinks.protection.outlook.com/?url=https%3A%2F%2Foutlook.office.com%2Fbookwithme%2Fuser%2F335215c5155c4c38b0de6cb2c3f71125%40PerryHomes.com%3Fanonymous%26ismsaljsauthenabled%26ep%3DbwmEmailSignature&data=05%7C02%7CAngela.Speights%40PerryHomes.com%7C3ed36dc54f2245dd6dfe08de9d73047a%7Cca39f22a84304f7fa2da0b70923ac0c4%7C0%7C0%7C639121314506077129%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=aUY%2Bq9s271%2FgLTkws72LujcFVY1F4zK9vH92zdItSmc%3D&reserved=0" target="_blank" rel="noopener noreferrer">Book a virtual or in-person appointment</a>
+        </div>
+      </div>
+
+      <div class="foot">
+        * Home insurance premiums average between $2,200 - $3,100 per year, based on home size, and total tax rate for Riceland is 3.36%.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const E = (id) => document.getElementById(id);
+
+    const fmtMoney = (n) => new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(isFinite(n) ? n : 0);
+
+    function getProgramRules(program, downPct, disabledVetChecked) {
+      const rules = {
+        FHA: {
+          upfrontPct: 0.0175,
+          monthlyPct: 0.0055
+        },
+        VA: {
+          upfrontPct: disabledVetChecked ? 0 : 0.0215,
+          monthlyPct: 0
+        },
+        Conventional: {
+          upfrontPct: 0,
+          monthlyPct: downPct < 0.20 ? 0.005 : 0
+        },
+        USDA: {
+          upfrontPct: 0.01,
+          monthlyPct: 0.0035
+        }
+      };
+      return rules[program];
+    }
+
+    function monthlyMortgagePayment(principal, annualRate, termYears) {
+      const r = annualRate / 12;
+      const n = termYears * 12;
+      if (principal <= 0) return 0;
+      if (r === 0) return principal / n;
+      return principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    }
+
+    function computeTaxes(price, program) {
+      let taxableValue = price;
+
+      if (E('homestead').checked) taxableValue *= 0.80;
+      if (E('senior65').checked) taxableValue = Math.max(0, taxableValue - 360000);
+      if (E('disabledVet').checked && program === 'VA') taxableValue = 0;
+
+      return (taxableValue * 0.0336) / 12;
+    }
+
+    function calculate() {
+      const price = Math.max(0, parseFloat(E('homePrice').value) || 0);
+      const down = Math.max(0, parseFloat(E('downPayment').value) || 0);
+      const rate = Math.max(0, parseFloat(E('interestRate').value) || 0) / 100;
+      const years = parseInt(E('termYears').value, 10);
+      const insuranceAnnual = Math.max(0, parseFloat(E('annualInsurance').value) || 0);
+      const program = E('loanProgram').value;
+
+      if (program !== 'VA' && E('disabledVet').checked) {
+        E('disabledVet').checked = false;
+      }
+
+      const rawBaseLoan = Math.max(0, price - down);
+      const downPct = price > 0 ? down / price : 0;
+      const rules = getProgramRules(program, downPct, E('disabledVet').checked);
+
+      const financedUpfrontFee = rawBaseLoan * rules.upfrontPct;
+      const financedLoanAmount = rawBaseLoan + financedUpfrontFee;
+      const monthlyPI = monthlyMortgagePayment(financedLoanAmount, rate, years);
+      const monthlyTaxes = computeTaxes(price, program);
+      const monthlyInsurance = insuranceAnnual / 12;
+      const monthlyFees = (financedLoanAmount * rules.monthlyPct) / 12;
+      const totalMonthly = monthlyPI + monthlyTaxes + monthlyInsurance + monthlyFees;
+
+      E('monthlyPayment').textContent = fmtMoney(totalMonthly);
+      E('monthlyTaxes').textContent = fmtMoney(monthlyTaxes);
+      E('monthlyInsurance').textContent = fmtMoney(monthlyInsurance);
+      E('monthlyPI').textContent = fmtMoney(monthlyPI);
+      E('monthlyFees').textContent = fmtMoney(monthlyFees);
+      E('loanAmount').textContent = fmtMoney(financedLoanAmount);
+      E('upfrontFee').textContent = fmtMoney(financedUpfrontFee);
+
+      const disabledVetLabel = E('disabledVet').parentElement;
+      disabledVetLabel.style.opacity = program === 'VA' ? '1' : '.45';
+      disabledVetLabel.style.pointerEvents = program === 'VA' ? 'auto' : 'none';
+    }
+
+    function buildEstimateEmail() {
+      const name = E('leadName').value.trim();
+      const email = E('leadEmail').value.trim();
+      const budget = E('leadBudget').value.trim();
+
+      const homePrice = parseFloat(E('homePrice').value) || 0;
+      const downPayment = parseFloat(E('downPayment').value) || 0;
+      const interestRate = parseFloat(E('interestRate').value) || 0;
+      const annualInsurance = parseFloat(E('annualInsurance').value) || 0;
+      const loanProgram = E('loanProgram').value;
+      const termYears = E('termYears').value;
+
+      const monthlyPayment = E('monthlyPayment').textContent;
+      const monthlyTaxes = E('monthlyTaxes').textContent;
+      const monthlyInsuranceText = E('monthlyInsurance').textContent;
+      const monthlyPI = E('monthlyPI').textContent;
+      const monthlyFees = E('monthlyFees').textContent;
+
+      const exemptions = [];
+      if (E('homestead').checked) exemptions.push('Homestead');
+      if (E('senior65').checked) exemptions.push('65+');
+      if (E('disabledVet').checked && loanProgram === 'VA') exemptions.push('Total Disabled Veteran');
+
+      const body =
+`Hello Angela,
+
+I would like to receive more information about my Perry Homes mortgage estimate.
+
+Client Name: ${name || 'Not provided'}
+Client Email: ${email || 'Not provided'}
+Target Budget: ${budget ? '$' + Number(budget).toLocaleString() : 'Not provided'}
+
+Estimate Details:
+Home Price: $${homePrice.toLocaleString()}
+Loan Program: ${loanProgram}
+Down Payment: $${downPayment.toLocaleString()}
+Interest Rate: ${interestRate}%
+Loan Term: ${termYears} years
+Annual Insurance Estimate: $${annualInsurance.toLocaleString()}
+Tax Exemptions Selected: ${exemptions.length ? exemptions.join(', ') : 'None'}
+
+Estimated Monthly Payment: ${monthlyPayment}
+Monthly Principal & Interest: ${monthlyPI}
+Monthly Taxes: ${monthlyTaxes}
+Monthly Insurance: ${monthlyInsuranceText}
+Monthly Mortgage Fees: ${monthlyFees}
+
+Please contact me to discuss options and next steps.
+
+Thank you.`;
+
+      const subject = encodeURIComponent("Mortgage Estimate Request - Perry Homes");
+      const encodedBody = encodeURIComponent(body);
+      const mailto = `mailto:Angela.Speights@PerryHomes.com?subject=${subject}&body=${encodedBody}`;
+
+      window.location.href = mailto;
+      E('successMessage').style.display = 'block';
+    }
+
+    [
+      'homePrice',
+      'loanProgram',
+      'downPayment',
+      'interestRate',
+      'termYears',
+      'annualInsurance',
+      'homestead',
+      'senior65',
+      'disabledVet'
+    ].forEach(id => E(id).addEventListener('input', calculate));
+
+    E('sendEstimateBtn').addEventListener('click', buildEstimateEmail);
+
+    calculate();
+  </script>
+</body>
+</html>
