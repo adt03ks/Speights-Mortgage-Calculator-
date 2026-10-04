@@ -183,9 +183,10 @@
       margin-top: 18px;
     }
 
+    [hidden] { display: none !important; }
     .mini div {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
+      background: var(--soft);
+      border: 1px solid var(--line);
       border-radius: 16px;
       padding: 14px;
     }
@@ -193,7 +194,7 @@
     .mini strong {
       display: block;
       font-size: .85rem;
-      color: rgba(255,255,255,.74);
+      color: var(--muted);
       margin-bottom: 6px;
       font-weight: 500;
     }
@@ -389,7 +390,9 @@
 
           <div class="field">
             <label for="downPayment">Down Payment Amount</label>
-            <input id="downPayment" type="number" value="102000" min="0" step="500" />
+            <input id="downPayment" type="number" value="102000" min="0" step="0.01" />
+            <label for="downPaymentPercent">Down Payment (%)</label>
+            <input id="downPaymentPercent" type="number" value="20" min="0" max="100" step="0.01" />
           </div>
 
           <div class="field">
@@ -404,6 +407,12 @@
               <option value="20">20 years</option>
               <option value="15">15 years</option>
             </select>
+          </div>
+
+          <div class="field full">
+            <label for="planSize">Plan / Square Footage</label>
+            <input id="planSize" type="text" placeholder="Example: 3566W or 3566" aria-describedby="insuranceLookupNote" />
+            <span class="note" id="insuranceLookupNote">Enter a plan number or square footage to load the supplied annual premium. You can edit the premium below.</span>
           </div>
 
           <div class="field">
@@ -434,12 +443,25 @@
             </div>
 
             <div class="mini">
-              <div><strong>Estimated Monthly Taxes</strong><span id="monthlyTaxes">$0</span></div>
-              <div><strong>Estimated Monthly Insurance</strong><span id="monthlyInsurance">$0</span></div>
-              <div><strong>Estimated Monthly Principal & Interest</strong><span id="monthlyPI">$0</span></div>
-              <div><strong>Estimated Monthly Mortgage Fees</strong><span id="monthlyFees">$0</span></div>
-              <div><strong>Financed Loan Amount</strong><span id="loanAmount">$0</span></div>
+              <div><strong>Total Loan Amount</strong><span id="loanAmount">$0</span></div>
+              <div><strong>Principal &amp; Interest</strong><span id="monthlyPI">$0</span></div>
+              <div><strong>Monthly Taxes</strong><span id="monthlyTaxes">$0</span>
+                <label class="check" id="annualTaxOption" hidden><input id="payTaxesAnnually" type="checkbox" /><span style="font-size:.9rem;font-weight:400">Pay taxes annually — exclude from monthly payment</span></label>
+                <p class="note" id="annualTaxNote" hidden></p>
+              </div>
+              <div><strong>Monthly Insurance</strong><span id="monthlyInsurance">$0</span></div>
+              <div><strong>Monthly Mortgage Fees / PMI</strong><span id="monthlyFees">$0</span></div>
               <div><strong>Upfront Financed Program Fee</strong><span id="upfrontFee">$0</span></div>
+            </div>
+            <div class="checks" id="pmiOption" hidden style="margin-top:18px">
+              <button type="button" class="btn btn-dark" id="removePMI" aria-pressed="false">Remove monthly PMI — pay upfront</button>
+              <p class="note">Paying PMI upfront adds a fee to your total cost to close, typically estimated at 1%–2% of the loan amount. This estimate uses 1.5%; the actual fee and availability require lender confirmation.</p>
+              <label for="pmiUpfrontPercent">Estimated upfront PMI fee (%)</label>
+              <input id="pmiUpfrontPercent" type="number" min="1" max="2" step="0.1" value="1.5" />
+            </div>
+            <div class="checks" style="margin-top:18px">
+              <strong>Additional Upfront PMI Cost to Close: <span id="pmiClosingFee">$0</span></strong>
+              <p class="note" id="closingCostNote">This is an additional fee only. Total cash to close also includes your down payment and other closing costs.</p>
             </div>
           </div>
 
@@ -493,7 +515,7 @@
       </div>
 
       <div class="foot">
-        * Home insurance premiums average between $2,200 - $3,100 per year, based on home size, and total tax rate for Riceland is 3.36%.
+        * Home insurance premiums in the supplied schedule range from $2,208–$3,649 per year, based on home size, and total tax rate for Riceland is 3.36%.
       </div>
     </div>
   </div>
@@ -547,6 +569,43 @@
       return (taxableValue * 0.0336) / 12;
     }
 
+    let downPaymentMode = 'amount';
+    let removeMonthlyPMI = false;
+    const premiumSchedule = [
+      [2301,2400,2208],[2401,2500,2213],[2601,2700,2223],
+      [2701,2800,2238],[2801,2900,2243],[2901,3000,2333],
+      [3001,3100,2362],[3201,3300,2488],[3301,3400,2550],
+      [3401,3500,2616],[3501,3600,2674],[3601,3700,2740],
+      [3701,3800,2800],[3901,4000,2927],[4101,4200,3051],
+      [4201,4300,3116],[4301,4400,3375],[4801,4900,3492],
+      [5501,5600,3649]
+    ];
+    function updateInsuranceFromPlan() {
+      const raw = E('planSize').value.trim().replace(/,/g, '');
+      const match = raw.match(/^(\d+)(?:\s*[a-z]+)?$/i);
+      const size = match ? Number(match[1]) : 0;
+      const row = premiumSchedule.find(([low, high]) => size >= low && size <= high);
+      if (row) {
+        E('annualInsurance').value = row[2];
+        E('insuranceLookupNote').textContent = `Supplied premium for ${row[0]}–${row[1]} sq. ft.: ${fmtMoney(row[2])}/year. Editable estimate.`;
+      } else {
+        if (raw) E('annualInsurance').value = '';
+        E('insuranceLookupNote').textContent = raw ? 'No supplied premium for this plan/range. Enter an annual premium manually; insurance is currently excluded until entered.' : 'Enter a plan number or square footage to load the supplied annual premium. You can edit the premium below.';
+      }
+      calculate();
+    }
+    function syncDownPayment() {
+      const price = Math.max(0, Number(E('homePrice').value) || 0);
+      if (downPaymentMode === 'percent') {
+        const pct = Math.min(100, Math.max(0, Number(E('downPaymentPercent').value) || 0));
+        E('downPaymentPercent').value = pct;
+        E('downPayment').value = (price * pct / 100).toFixed(2);
+      } else {
+        const down = Math.min(price, Math.max(0, Number(E('downPayment').value) || 0));
+        E('downPayment').value = down;
+        E('downPaymentPercent').value = price ? Number((down / price * 100).toFixed(6)) : 0;
+      }
+    }
     function calculate() {
       const price = Math.max(0, parseFloat(E('homePrice').value) || 0);
       const down = Math.max(0, parseFloat(E('downPayment').value) || 0);
@@ -568,8 +627,22 @@
       const monthlyPI = monthlyMortgagePayment(financedLoanAmount, rate, years);
       const monthlyTaxes = computeTaxes(price, program);
       const monthlyInsurance = insuranceAnnual / 12;
-      const monthlyFees = (financedLoanAmount * rules.monthlyPct) / 12;
-      const totalMonthly = monthlyPI + monthlyTaxes + monthlyInsurance + monthlyFees;
+      const pmiEligible = program === 'Conventional' && downPct < 0.20 && rawBaseLoan > 0;
+      if (!pmiEligible) removeMonthlyPMI = false;
+      E('pmiOption').hidden = !pmiEligible;
+      E('removePMI').setAttribute('aria-pressed', String(removeMonthlyPMI));
+      E('removePMI').textContent = removeMonthlyPMI ? 'Restore monthly PMI' : 'Remove monthly PMI — pay upfront';
+      const pmiPct = Math.min(2, Math.max(1, Number(E('pmiUpfrontPercent').value) || 1.5));
+      const pmiClosingFee = removeMonthlyPMI ? financedLoanAmount * pmiPct / 100 : 0;
+      const monthlyFees = removeMonthlyPMI ? 0 : (financedLoanAmount * rules.monthlyPct) / 12;
+      const annualTaxEligible = downPct >= 0.20;
+      E('annualTaxOption').hidden = !annualTaxEligible;
+      if (!annualTaxEligible) E('payTaxesAnnually').checked = false;
+      const taxesAnnual = E('payTaxesAnnually').checked;
+      E('annualTaxNote').hidden = !taxesAnnual;
+      E('annualTaxNote').textContent = `${fmtMoney(monthlyTaxes * 12)} due annually; excluded from the monthly estimate. Subject to lender approval.`;
+      const totalMonthly = monthlyPI + (taxesAnnual ? 0 : monthlyTaxes) + monthlyInsurance + monthlyFees;
+      E('pmiClosingFee').textContent = fmtMoney(pmiClosingFee);
 
       E('monthlyPayment').textContent = fmtMoney(totalMonthly);
       E('monthlyTaxes').textContent = fmtMoney(monthlyTaxes);
@@ -585,6 +658,8 @@
     }
 
     function buildEstimateEmail() {
+      syncDownPayment();
+      calculate();
       const name = E('leadName').value.trim();
       const email = E('leadEmail').value.trim();
       const budget = E('leadBudget').value.trim();
@@ -619,17 +694,25 @@ Target Budget: ${budget ? '$' + Number(budget).toLocaleString() : 'Not provided'
 Estimate Details:
 Home Price: $${homePrice.toLocaleString()}
 Loan Program: ${loanProgram}
-Down Payment: $${downPayment.toLocaleString()}
+Down Payment: $${downPayment.toLocaleString()} (${E('downPaymentPercent').value}%)
+Plan / Square Footage: ${E('planSize').value || 'Not provided'}
 Interest Rate: ${interestRate}%
 Loan Term: ${termYears} years
 Annual Insurance Estimate: $${annualInsurance.toLocaleString()}
 Tax Exemptions Selected: ${exemptions.length ? exemptions.join(', ') : 'None'}
 
+Total Loan Amount: ${E('loanAmount').textContent}
 Estimated Monthly Payment: ${monthlyPayment}
 Monthly Principal & Interest: ${monthlyPI}
 Monthly Taxes: ${monthlyTaxes}
 Monthly Insurance: ${monthlyInsuranceText}
 Monthly Mortgage Fees: ${monthlyFees}
+Taxes paid annually: ${E('payTaxesAnnually').checked ? 'Yes — excluded from monthly payment' : 'No'}
+Annual Taxes: ${fmtMoney(computeTaxes(homePrice, loanProgram) * 12)}
+PMI paid upfront: ${removeMonthlyPMI ? 'Yes' : 'No'}
+Additional Upfront PMI Cost to Close: ${E('pmiClosingFee').textContent}
+Upfront Financed Program Fee: ${E('upfrontFee').textContent}
+Upfront PMI is an additional closing cost estimate, not total cash to close. Lender confirmation required.
 
 Please contact me to discuss options and next steps.
 
@@ -644,17 +727,20 @@ Thank you.`;
     }
 
     [
-      'homePrice',
       'loanProgram',
-      'downPayment',
       'interestRate',
       'termYears',
       'annualInsurance',
       'homestead',
       'senior65',
-      'disabledVet'
+      'disabledVet', 'payTaxesAnnually', 'pmiUpfrontPercent'
     ].forEach(id => E(id).addEventListener('input', calculate));
 
+    E('downPayment').addEventListener('input', () => { downPaymentMode = 'amount'; syncDownPayment(); calculate(); });
+    E('downPaymentPercent').addEventListener('input', () => { downPaymentMode = 'percent'; syncDownPayment(); calculate(); });
+    E('homePrice').addEventListener('input', () => { syncDownPayment(); calculate(); });
+    E('planSize').addEventListener('input', updateInsuranceFromPlan);
+    E('removePMI').addEventListener('click', () => { removeMonthlyPMI = !removeMonthlyPMI; calculate(); });
     E('sendEstimateBtn').addEventListener('click', buildEstimateEmail);
 
     calculate();
